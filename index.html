@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>grepe.ai — Free, local, private AI for Roblox Studio</title>
+<meta name="description" content="grepe.ai runs a local AI model on your own PC and builds parts, trees, scripts and more inside Roblox Studio. No cloud, no subscription billing, no telemetry.">
+<style>
+  :root{
+    --bg:#0b0e14; --bg2:#10141d; --card:#151a26; --line:#232a3a;
+    --txt:#e8ecf4; --dim:#9aa4b8; --acc:#7c5cff; --acc2:#4dd6a8;
+    --gold:#f5b544; --red:#ff6b6b;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;line-height:1.6;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+  /* nav */
+  nav{position:sticky;top:0;z-index:50;background:rgba(11,14,20,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .logo{font-weight:800;font-size:22px;letter-spacing:.5px}
+  .logo span{color:var(--acc)}
+  .navlinks{display:flex;gap:26px;align-items:center;font-size:14px;color:var(--dim)}
+  .navlinks a:hover{color:var(--txt)}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:10px;font-weight:700;font-size:15px;border:1px solid transparent;cursor:pointer;transition:transform .15s,box-shadow .15s,background .15s}
+  .btn:hover{transform:translateY(-2px)}
+  .btn-acc{background:linear-gradient(135deg,var(--acc),#5a3df0);color:#fff;box-shadow:0 6px 24px rgba(124,92,255,.35)}
+  .btn-ghost{border-color:var(--line);background:var(--card);color:var(--txt)}
+  .btn-ghost:hover{border-color:var(--acc)}
+  .btn-green{background:linear-gradient(135deg,#2fbf8f,#1f9e74);color:#fff;box-shadow:0 6px 24px rgba(77,214,168,.25)}
+  .btn-gold{background:linear-gradient(135deg,var(--gold),#e0912a);color:#20150a;box-shadow:0 6px 24px rgba(245,181,68,.25)}
+  .btn-sm{padding:9px 16px;font-size:13px;border-radius:8px}
+  /* hero */
+  header{position:relative;padding:96px 0 72px;overflow:hidden}
+  header .bg{position:absolute;inset:0;background:url('assets/hero-main.png') center 30%/cover no-repeat;opacity:.28;filter:saturate(1.1)}
+  header .fade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,14,20,.55) 0%,rgba(11,14,20,.82) 65%,var(--bg) 100%)}
+  header .wrap{position:relative;z-index:2}
+  .pill{display:inline-block;padding:6px 14px;border:1px solid var(--line);border-radius:999px;background:rgba(21,26,38,.7);color:var(--acc2);font-size:12.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;margin-bottom:22px}
+  h1{font-size:clamp(34px,5.4vw,58px);line-height:1.12;font-weight:800;max-width:760px}
+  h1 em{font-style:normal;background:linear-gradient(90deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{margin:20px 0 34px;max-width:640px;color:var(--dim);font-size:17px}
+  .cta{display:flex;gap:14px;flex-wrap:wrap}
+  .hero-note{margin-top:18px;color:var(--dim);font-size:13px}
+  /* sections */
+  section{padding:72px 0}
+  h2{font-size:clamp(26px,3.4vw,36px);font-weight:800;margin-bottom:10px}
+  .lead{color:var(--dim);max-width:680px;margin-bottom:40px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px}
+  .card h3{font-size:18px;margin-bottom:8px}
+  .card p{color:var(--dim);font-size:14.5px}
+  .ico{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px;background:rgba(124,92,255,.14);border:1px solid rgba(124,92,255,.35)}
+  /* steps */
+  .step{position:relative;padding-left:56px}
+  .step .n{position:absolute;left:0;top:0;width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--acc),#5a3df0);display:flex;align-items:center;justify-content:center;font-weight:800}
+  .step h3{font-size:16.5px;margin-bottom:6px}
+  .step p{color:var(--dim);font-size:14px}
+  .steps{display:grid;grid-template-columns:repeat(2,1fr);gap:28px 36px}
+  /* pricing */
+  .tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;align-items:stretch}
+  .tier{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:30px;display:flex;flex-direction:column;position:relative}
+  .tier.hot{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc),0 12px 44px rgba(124,92,255,.22)}
+  .tier .tag{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--acc),#5a3df0);padding:4px 14px;border-radius:999px;font-size:11.5px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;white-space:nowrap}
+  .tier h3{font-size:22px;font-weight:800}
+  .tier .price{font-size:34px;font-weight:800;margin:10px 0 2px}
+  .tier .price small{font-size:14px;color:var(--dim);font-weight:600}
+  .tier .per{color:var(--dim);font-size:13px;margin-bottom:18px}
+  .tier ul{list-style:none;margin:0 0 24px;flex:1}
+  .tier li{padding:7px 0 7px 26px;position:relative;font-size:14.5px;color:var(--dim)}
+  .tier li b{color:var(--txt)}
+  .tier li.yes::before{content:'✓';position:absolute;left:0;color:var(--acc2);font-weight:800}
+  .tier li.no::before{content:'✕';position:absolute;left:0;color:var(--red);font-weight:800}
+  .tier li.gold::before{content:'★';position:absolute;left:0;color:var(--gold);font-weight:800}
+  .tier .btn{justify-content:center;width:100%}
+  .rebuy{margin-top:12px;text-align:center;color:var(--dim);font-size:12.5px}
+  /* proofs */
+  .split{display:grid;grid-template-columns:1.1fr .9fr;gap:36px;align-items:center}
+  .split img{width:100%;border-radius:16px;border:1px solid var(--line);display:block}
+  .codebox{background:#0d1119;border:1px solid var(--line);border-radius:12px;padding:16px 18px;font-family:Consolas,monospace;font-size:13.5px;color:var(--acc2);margin:14px 0;overflow-x:auto}
+  /* footer */
+  footer{border-top:1px solid var(--line);padding:36px 0;color:var(--dim);font-size:13.5px}
+  footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+  @media(max-width:900px){.grid3,.grid4,.tiers,.steps,.split{grid-template-columns:1fr}.navlinks a.hide-m{display:none}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="#">grepe<span>.ai</span></a>
+    <div class="navlinks">
+      <a class="hide-m" href="#features">Features</a>
+      <a class="hide-m" href="#how">How it works</a>
+      <a href="#pricing">Pricing</a>
+      <a class="hide-m" href="#verify">Purchase check</a>
+      <a class="btn btn-acc btn-sm" href="https://github.com/gepodev/grepe-ai/releases/latest/download/grepe.ai-Setup-1.1.0.exe">Download</a>
+    </div>
+  </div>
+</nav>
+
+<header>
+  <div class="bg"></div><div class="fade"></div>
+  <div class="wrap">
+    <span class="pill">100% local · 100% private · unlimited generations</span>
+    <h1>Build Roblox worlds with <em>your own AI</em>, on your own PC.</h1>
+    <p class="sub">grepe.ai puts a language model on your machine and wires it into Roblox Studio.
+      Type “a pine tree”, “a red spawn part”, “make that tree choppable” — and it appears in your place,
+      fully undoable with Ctrl+Z. No cloud. No per-token billing. Your prompts never leave your PC.</p>
+    <div class="cta">
+      <a class="btn btn-acc" href="https://github.com/gepodev/grepe-ai/releases/latest/download/grepe.ai-Setup-1.1.0.exe">⬇ Download for Windows</a>
+      <a class="btn btn-ghost" href="https://create.roblox.com/store/asset/124004857468257/GrapeAi">🧩 Get the Studio Plugin</a>
+      <a class="btn btn-green" href="https://discord.gg/xdKGXETJMu">💬 Join the Discord</a>
+    </div>
+    <p class="hero-note">Free forever tier · Windows 10/11 · 8 GB RAM · no GPU required · installer is unsigned (SmartScreen → More info → Run anyway)</p>
+  </div>
+</header>
+
+<section id="features">
+  <div class="wrap">
+    <h2>Why grepe.ai</h2>
+    <p class="lead">Everything runs on <b>your</b> hardware. The plugin only ever talks to 127.0.0.1 — nothing listens on the network, nothing is uploaded.</p>
+    <div class="grid4">
+      <div class="card"><div class="ico">🔒</div><h3>Private by design</h3><p>Prompts, scene context and reference images stay on your PC. No telemetry, no cloud calls from the model.</p></div>
+      <div class="card"><div class="ico">♾️</div><h3>Unlimited builds</h3><p>No token meter. Generate as many parts, trees, scripts and edits as you want while your key is active.</p></div>
+      <div class="card"><div class="ico">🖼️</div><h3>Reference images</h3><p>Hit the + button in the plugin, drop a picture, and the AI matches its palette and style in your build.</p></div>
+      <div class="card"><div class="ico">↩️</div><h3>Full undo</h3><p>Every action is a ChangeHistoryService waypoint. One Ctrl+Z rolls the whole generation back.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="how" style="background:var(--bg2)">
+  <div class="wrap">
+    <h2>Up and building in 5 minutes</h2>
+    <p class="lead">One installer, one plugin, one Discord key. That’s the whole setup.</p>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><h3>Install the app</h3><p>Run the Windows installer, open grepe.ai and click <b>Download Model</b> (~2.5 GB, SHA-256 verified) — or point it at a model file you already have.</p></div>
+      <div class="step"><div class="n">2</div><h3>Get your key</h3><p>Join the Discord, run <b>/getkey</b> and press the <b>Get Key</b> button. The key arrives by DM. Paste it into the app and hit Activate.</p></div>
+      <div class="step"><div class="n">3</div><h3>Start the servers</h3><p>Click <b>Start AI Server</b>, then <b>Start Bridge</b>. Both bind to 127.0.0.1 only. The app shows live status for each.</p></div>
+      <div class="step"><div class="n">4</div><h3>Install the plugin &amp; build</h3><p>Add <b>grepe.ai</b> from the Creator Store, paste the bridge token once, type a prompt and press Generate. Watch it appear in Studio.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="wrap">
+    <h2>Pick your key length</h2>
+    <p class="lead">The AI itself is free and unlimited on every tier — tiers only change how long a key stays valid before you press Get Key again. Paid tiers are <b>re-buyable</b>: buy again any time and the time stacks on top of what you have left.</p>
+    <div class="tiers">
+      <div class="tier">
+        <h3>Free</h3>
+        <div class="price">0 <small>R$</small></div>
+        <div class="per">forever · just join the Discord</div>
+        <ul>
+          <li class="yes"><b>Unlimited</b> local generations</li>
+          <li class="yes">Full plugin: parts, trees, scripts, choppable trees</li>
+          <li class="yes">Reference-image (+) uploads</li>
+          <li class="yes">Dark &amp; light theme, draggable window</li>
+          <li class="no"><b>6-hour</b> keys — re-run /getkey when it expires</li>
+          <li class="no">Key dies if you leave the server</li>
+          <li class="no">No priority support channel</li>
+        </ul>
+        <a class="btn btn-ghost" href="https://discord.gg/xdKGXETJMu">Join Discord &amp; get key</a>
+        <div class="rebuy">/getkey → Get Key button → DM</div>
+      </div>
+      <div class="tier hot">
+        <span class="tag">Most popular</span>
+        <h3>Pro</h3>
+        <div class="price">5 <small>R$</small> / 3 mo</div>
+        <div class="per">or 15 R$ for a full year</div>
+        <ul>
+          <li class="yes">Everything in Free</li>
+          <li class="yes"><b>12-hour</b> keys — half the re-keying</li>
+          <li class="yes">Pro role + colored name in Discord</li>
+          <li class="yes">Pro support channel</li>
+          <li class="yes"><b>Re-buyable:</b> renew anytime, time stacks</li>
+          <li class="yes">Auto-verified purchase — role granted instantly</li>
+          <li class="no">24-hour keys are Ultra Pro only</li>
+        </ul>
+        <a class="btn btn-acc" href="https://www.roblox.com/games/81787993951575/">Buy Pro in the m1 store</a>
+        <div class="rebuy">3 months = 5 R$ · 1 year = 15 R$</div>
+      </div>
+      <div class="tier">
+        <h3>Ultra Pro</h3>
+        <div class="price">10 <small>R$</small> / 3 mo</div>
+        <div class="per">or 25 R$ for a full year</div>
+        <ul>
+          <li class="yes">Everything in Pro</li>
+          <li class="gold"><b>24-hour</b> keys — one key per day, max</li>
+          <li class="gold">Ultra Pro role + badge in Discord</li>
+          <li class="gold">Priority support + early feature builds</li>
+          <li class="gold">Vote on the next plugin features</li>
+          <li class="yes"><b>Re-buyable:</b> renew anytime, time stacks</li>
+          <li class="yes">Auto-verified purchase — role granted instantly</li>
+        </ul>
+        <a class="btn btn-gold" href="https://www.roblox.com/games/81787993951575/">Buy Ultra Pro in the m1 store</a>
+        <div class="rebuy">3 months = 10 R$ · 1 year = 25 R$</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="verify" style="background:var(--bg2)">
+  <div class="wrap">
+    <div class="split">
+      <div>
+        <h2>Who bought what? We check automatically.</h2>
+        <p class="lead" style="margin-bottom:16px">Purchases in the m1 store game are verified server-side the moment Roblox confirms the receipt — your Discord role and key tier update without anyone lifting a finger.</p>
+        <div class="codebox">/checkbuy&nbsp;&nbsp;→ your purchase history + active tier expiry<br>#proofs&nbsp;&nbsp;&nbsp;→ receipt screenshot fallback if auto-verify ever misses</div>
+        <p style="color:var(--dim);font-size:14.5px">Enter your Discord ID in the in-game shop <b>before</b> buying so the receipt can be matched to you.
+          Re-buying the same product extends your subscription from wherever it currently ends — nothing is ever wasted.
+          If a purchase ever fails to auto-verify, post the receipt in <b>#proofs</b> and an admin grants the tier with
+          <b>/pro3 /pro1 /upro3 /upro1</b>.</p>
+      </div>
+      <img src="assets/hero-build.png" alt="Roblox world built with grepe.ai">
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap" style="text-align:center">
+    <h2>Ready to build?</h2>
+    <p class="lead" style="margin:0 auto 30px">Download the app, grab the plugin, join the Discord. Your first tree is one prompt away.</p>
+    <div class="cta" style="justify-content:center">
+      <a class="btn btn-acc" href="https://github.com/gepodev/grepe-ai/releases/latest/download/grepe.ai-Setup-1.1.0.exe">⬇ Download for Windows</a>
+      <a class="btn btn-ghost" href="https://create.roblox.com/store/asset/124004857468257/GrapeAi">🧩 Studio Plugin</a>
+      <a class="btn btn-green" href="https://discord.gg/xdKGXETJMu">💬 Discord</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>© 2026 grepe.ai · local AI for Roblox creators · not affiliated with Roblox Corporation</div>
+    <div><a href="https://discord.gg/xdKGXETJMu">Discord</a> · <a href="https://create.roblox.com/store/asset/124004857468257/GrapeAi">Plugin</a> · <a href="https://github.com/gepodev/grepe-ai">GitHub</a></div>
+  </div>
+</footer>
+
+</body>
+</html>
